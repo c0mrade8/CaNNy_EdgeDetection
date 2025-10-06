@@ -10,7 +10,7 @@ Java_com_example_edgedetectionapp_MainActivity_processFrame(
     Mat &output = *(Mat *) addrOutput;
     if (input.empty()) return;
 
-    // Just copy input to output for raw feed
+    //input to output for raw feed
     input.copyTo(output);
 }
 

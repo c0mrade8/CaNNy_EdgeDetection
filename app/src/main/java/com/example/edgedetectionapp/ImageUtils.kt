@@ -12,12 +12,12 @@ object ImageUtils {
         val width = image.width
         val height = image.height
 
-        // Read Y, U, V planes safely
+        //read Y,U,V planes
         val yPlane = image.planes[0].buffer
         val uPlane = image.planes[1].buffer
         val vPlane = image.planes[2].buffer
 
-        // Some devices output YUV as I420 layout (Y + U + V)
+        //(Y + U + V)
         val ySize = yPlane.remaining()
         val uSize = uPlane.remaining()
         val vSize = vPlane.remaining()
@@ -27,11 +27,11 @@ object ImageUtils {
         uPlane.get(data, ySize, uSize)
         vPlane.get(data, ySize + uSize, vSize)
 
-        // Create YUV Mat (I420 layout)
+        //YUV Mat--I420 layout
         val yuvMat = Mat(height + height / 2, width, CvType.CV_8UC1)
         yuvMat.put(0, 0, data)
 
-        // Convert YUV to RGBA using OpenCV
+        //YUV to RGBA
         val rgbaMat = Mat()
         Imgproc.cvtColor(yuvMat, rgbaMat, Imgproc.COLOR_YUV2RGBA_I420)
         yuvMat.release()
