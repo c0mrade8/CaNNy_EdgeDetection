@@ -1,29 +1,27 @@
 #include <jni.h>
 #include <opencv2/opencv.hpp>
-
 using namespace cv;
 
 extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_edgedetectionapp_MainActivity_processFrame(
-        JNIEnv *env, jobject, jlong addrInput, jlong addrOutput, jint width, jint height) {
+        JNIEnv*, jobject, jlong addrInput, jlong addrOutput, jint width, jint height) {
 
-    // Retrieve the actual Mats
-    cv::Mat &yuv = *(cv::Mat *) addrInput;
-    cv::Mat &output = *(cv::Mat *) addrOutput;
+    Mat &input = *(Mat *) addrInput;
+    Mat &output = *(Mat *) addrOutput;
 
-    cv::Mat bgr, gray, edges;
+    if (input.empty()) return;
 
-    // Convert NV21 → BGR
-    cv::cvtColor(yuv, bgr, cv::COLOR_YUV2BGR_NV21);
+    // Convert RGBA → grayscale
+    Mat gray;
+    cvtColor(input, gray, COLOR_RGBA2GRAY);
 
-    // Convert to grayscale
-    cv::cvtColor(bgr, gray, cv::COLOR_BGR2GRAY);
-    output=bgr.clone();
+    // Apply Gaussian blur for smoother edges
+    GaussianBlur(gray, gray, Size(5, 5), 1.5);
 
-//    // Apply Canny edge detection
-//    cv::Canny(gray, edges, 100, 200);
-//
-//    // Copy result to output
-//    edges.copyTo(output);
+    // Detect edges
+    Canny(gray, output, 80, 150);
+
+    // Convert edges (single channel) → RGBA so it can be displayed
+    cvtColor(output, output, COLOR_GRAY2RGBA);
 }
