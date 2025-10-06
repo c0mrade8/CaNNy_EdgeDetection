@@ -6,22 +6,25 @@ extern "C"
 JNIEXPORT void JNICALL
 Java_com_example_edgedetectionapp_MainActivity_processFrame(
         JNIEnv*, jobject, jlong addrInput, jlong addrOutput, jint width, jint height) {
-
     Mat &input = *(Mat *) addrInput;
     Mat &output = *(Mat *) addrOutput;
-
     if (input.empty()) return;
 
-    // Convert RGBA → grayscale
+    // Just copy input to output for raw feed
+    input.copyTo(output);
+}
+
+extern "C"
+JNIEXPORT void JNICALL
+Java_com_example_edgedetectionapp_MainActivity_processEdges(
+        JNIEnv*, jobject, jlong addrInput, jlong addrOutput, jint width, jint height) {
+    Mat &input = *(Mat *) addrInput;
+    Mat &output = *(Mat *) addrOutput;
+    if (input.empty()) return;
+
     Mat gray;
     cvtColor(input, gray, COLOR_RGBA2GRAY);
-
-    // Apply Gaussian blur for smoother edges
     GaussianBlur(gray, gray, Size(5, 5), 1.5);
-
-    // Detect edges
     Canny(gray, output, 80, 150);
-
-    // Convert edges (single channel) → RGBA so it can be displayed
     cvtColor(output, output, COLOR_GRAY2RGBA);
 }

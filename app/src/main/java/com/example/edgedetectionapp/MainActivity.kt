@@ -9,12 +9,16 @@ import android.Manifest
 import android.content.pm.PackageManager
 import androidx.core.app.ActivityCompat
 import androidx.core.content.ContextCompat
+import android.widget.Button
+import android.widget.TextView
 
 class MainActivity : AppCompatActivity() {
 
     private lateinit var glSurfaceView: GLSurfaceView
     private lateinit var glRenderer: GLRenderer
     private lateinit var cameraHelper: CameraHelper
+
+    private var showEdges = false
 
     companion object {
         init {
@@ -24,6 +28,7 @@ class MainActivity : AppCompatActivity() {
     }
 
     external fun processFrame(addrInput: Long, addrOutput: Long, width: Int, height: Int)
+    external fun processEdges(addrInput: Long, addrOutput: Long, width: Int, height: Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -35,6 +40,12 @@ class MainActivity : AppCompatActivity() {
         glRenderer = GLRenderer()
         glSurfaceView.setRenderer(glRenderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
+
+        val toggleButton = findViewById<Button>(R.id.toggleButton)
+        toggleButton.setOnClickListener {
+            showEdges = !showEdges
+            toggleButton.text = if (showEdges) "Show Live Feed" else "Show Edges"
+        }
 
         cameraHelper = CameraHelper(this) { image ->
             // Convert the YUV image to RGBA
@@ -48,7 +59,14 @@ class MainActivity : AppCompatActivity() {
             org.opencv.core.Core.rotate(rgba, rotated, org.opencv.core.Core.ROTATE_90_CLOCKWISE)
 
             // Process rotated frame (Canny edges, etc.)
-            processFrame(rotated.nativeObjAddr, output.nativeObjAddr, rotated.cols(), rotated.rows())
+            if (showEdges) {
+                // Apply Canny edge detection
+                processEdges(rotated.nativeObjAddr, output.nativeObjAddr, rotated.cols(), rotated.rows())
+            } else {
+                // Just show live feed
+                rotated.copyTo(output)
+            }
+            //processFrame(rotated.nativeObjAddr, output.nativeObjAddr, rotated.cols(), rotated.rows())
 
             // Send processed output to OpenGL renderer
             glRenderer.updateTexture(output)
@@ -67,15 +85,17 @@ class MainActivity : AppCompatActivity() {
         } else {
             cameraHelper.startCamera()
         }
+        if (ContextCompat.checkSelfPermission(this, Manifest.permission.CAMERA)
+            != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(this, arrayOf(Manifest.permission.CAMERA), 1001)
+        } else {
+            cameraHelper.startCamera()
+        }
     }
     override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults)
-        if (requestCode == 1001) {
-            if (grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                cameraHelper.startCamera()
-            } else {
-                // permission denied — show UI or close
-            }
+        if (requestCode == 1001 && grantResults.isNotEmpty() && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            cameraHelper.startCamera()
         }
     }
 
