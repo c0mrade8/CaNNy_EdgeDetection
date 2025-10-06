@@ -1,4 +1,4 @@
-# 📸 Edge Detection App (Software Engineering Intern – R&D Assignment)
+# 📸 Edge Detection App
 
 This project implements a **real-time edge detection pipeline** using **OpenCV**, **OpenGL ES**, and **Camera2 API** on Android, with a companion **TypeScript web viewer** for visualization.
 
@@ -38,6 +38,13 @@ This project implements a **real-time edge detection pipeline** using **OpenCV**
 >  **Note:**  
 > The `/app`, `/jni`, `/gl`, and `/web` structure is represented conceptually.  
 > Android Studio enforces its own `src/main/java` and `res` folder structure — this README maps those to the logical modules defined in the assignment.
+
+---
+**Conceptual Mapping:**
+- **/app:** All Kotlin/Android logic (MainActivity, CameraHelper, etc.)
+- **/jni:** The `cpp` directory containing `native-lib.cpp` and `CMakeLists.txt`.
+- **/gl:** The `GLRenderer.kt` file containing OpenGL rendering code.
+- **/web:** The dedicated directory for the Web viewer code (TypeScript,html,css).
 
 ---
 
@@ -124,19 +131,14 @@ npx tsc viewer.ts --target ES6 --outFile viewer.js
 
 # Output
 ## Live Feed: Grayscale camera preview
+![Live Feed from camera, frames in Gray Scale](img_readme/grayscale_test.jpg)
 ## Edge Detection: Canny edge output (white edges on black background)
+![Detected Canny Edges from the GrayScale](img_readme/edge_test.jpg)
 ## Web Viewer:	Displays saved frame + simulated FPS overlay
+![sample from live feed canny edge detection](img_readme/web_page.png)
 
 # Technologies Used
 - Kotlin, C++, TypeScript, HTML, CSS, Camera2, GLSurfaceView, JNI, OpenCV-Android 4.12.0, OpenGL ES 2.0.
-
-> * Note*
-> The Android project uses the default app/src/main/java and res layout enforced by Android Studio.
-> The logical structure is as follows:
-> /app → Kotlin + Android logic
-> /jni → C++ OpenCV native processing
-> /gl → OpenGL rendering code
-> /web → TypeScript viewer
 
 ## Author
 Niharika Rampathi  
