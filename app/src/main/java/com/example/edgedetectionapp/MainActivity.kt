@@ -12,11 +12,17 @@ import androidx.core.content.ContextCompat
 import android.widget.Button
 import android.widget.TextView
 
+private var lastFrameTime = System.currentTimeMillis()
+private var fps = 0.0
+
+
 class MainActivity : AppCompatActivity() {
 
     private lateinit var glSurfaceView: GLSurfaceView
     private lateinit var glRenderer: GLRenderer
     private lateinit var cameraHelper: CameraHelper
+    private lateinit var fpsText: TextView
+
 
     private var showEdges = false
 
@@ -31,6 +37,8 @@ class MainActivity : AppCompatActivity() {
     external fun processEdges(addrInput: Long, addrOutput: Long, width: Int, height: Int)
 
     override fun onCreate(savedInstanceState: Bundle?) {
+
+
         super.onCreate(savedInstanceState)
         OpenCVLoader.initDebug()
         setContentView(R.layout.activity_main)
@@ -41,6 +49,7 @@ class MainActivity : AppCompatActivity() {
         glSurfaceView.setRenderer(glRenderer)
         glSurfaceView.renderMode = GLSurfaceView.RENDERMODE_WHEN_DIRTY
 
+        fpsText = findViewById(R.id.fpsText)
         val toggleButton = findViewById<Button>(R.id.toggleButton)
         toggleButton.setOnClickListener {
             showEdges = !showEdges
@@ -71,6 +80,19 @@ class MainActivity : AppCompatActivity() {
             // Send processed output to OpenGL renderer
             glRenderer.updateTexture(output)
             glSurfaceView.requestRender()
+
+            // Calculate FPS
+            val currentTime = System.currentTimeMillis()
+            val delta = currentTime - lastFrameTime
+            if (delta > 0) {
+                fps = 1000.0 / delta
+            }
+            lastFrameTime = currentTime
+            runOnUiThread {
+                fpsText.text = "FPS: %.2f".format(fps)
+            }
+            android.util.Log.d("FPS", "Current FPS: %.2f".format(fps))
+
 
             // Clean up to prevent memory leaks
             image.close()

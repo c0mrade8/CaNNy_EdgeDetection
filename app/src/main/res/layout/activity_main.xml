@@ -8,6 +8,18 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent" />
 
+    <TextView
+    	android:id="@+id/fpsText"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="FPS: --"
+        android:textColor="@android:color/white"
+        android:textSize="16sp"
+        android:layout_gravity="top|end"
+        android:layout_margin="16dp"
+        android:background="#66000000"
+        android:padding="4dp"/>
+
     <Button
         android:id="@+id/toggleButton"
         android:text="Show Edges"
@@ -17,4 +29,6 @@
         android:layout_marginBottom="32dp"
         android:backgroundTint="@android:color/holo_blue_dark"
         android:textColor="@android:color/white" />
+
+
 </FrameLayout>
